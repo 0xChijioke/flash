@@ -22,19 +22,37 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("YourContract", {
-    from: deployer,
-    // Contract constructor arguments
-    args: [deployer],
-    log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
-  });
+  const feeData = await hre.ethers.provider.getFeeData();
 
-  // Get the deployed contract to interact with it after deploying.
-  const yourContract = await hre.ethers.getContract<Contract>("YourContract", deployer);
-  console.log("👋 Initial greeting:", await yourContract.greeting());
+  const poolAddressesProvider = "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e"; // Aave PoolAddressesProvider
+  const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC Token
+  try {
+    console.log("🚀 Starting the deployment...");
+
+    await deploy("FlashVault", {
+      from: deployer,
+      // gasLimit: 30000000,
+      args: [deployer, poolAddressesProvider, usdcAddress],
+      log: true,
+      autoMine: true,
+      maxFeePerGas: feeData.maxFeePerGas as any,
+      maxPriorityFeePerGas: feeData.maxPriorityFeePerGas as any,
+    });
+
+    // Get the deployed contract instance to interact with it post-deployment
+    const flashVault: Contract = await hre.ethers.getContract<Contract>("FlashVault", deployer);
+
+    const flashVaultAddy = await flashVault.getAddress();
+    console.log("✅ FlashVault deployed at:", flashVaultAddy);
+
+    // Set the flashFunction address
+    const flashFunctionAddress = "0x08762fc6bb91Af12ab6b6bF9f72729a5cD636152";
+    const setFlashFunctionTx = await flashVault.setFlashFunction(flashFunctionAddress);
+    await setFlashFunctionTx.wait();
+    console.log(`✅ flashFunction set to ${flashFunctionAddress}`);
+  } catch (error) {
+    console.error("❌ Error deploying contracts or interacting with whale account:", error);
+  }
 };
 
 export default deployYourContract;
