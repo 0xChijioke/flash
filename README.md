@@ -1,6 +1,10 @@
 # Flash
 
 
+**FlashVault** is a Dapp designed to leverage arbitrage between decentralized exchanges (DEXs) using pooled liquidiy or taking non-collateralized loans. it enables users to deposit assets permisionlessly, earn, and withdraw seamlessly, enabling users to maximize their capital through automated trading strategies. 
+
+
+
 ## Getting Started
 
 ### Requirements
