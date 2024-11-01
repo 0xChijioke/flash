@@ -105,7 +105,7 @@ flowchart TB
     class Events,PriceCheck,Opportunity secondary
     class Contract,DirectSwap,FlashLoan action
     class Dashboard,VaultMetrics monitor
-
+```
 
 
 
