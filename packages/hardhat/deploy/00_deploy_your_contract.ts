@@ -24,8 +24,8 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   const feeData = await hre.ethers.provider.getFeeData();
 
-  const poolAddressesProvider = "0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e"; // Aave PoolAddressesProvider
-  const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC Token
+  const poolAddressesProvider = "0x012bAC54348C0E635dCAc9D5FB99f06F24136C9A"; // Aave PoolAddressesProvider
+  const usdcAddress = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"; // USDC Token
   try {
     console.log("🚀 Starting the deployment...");
 

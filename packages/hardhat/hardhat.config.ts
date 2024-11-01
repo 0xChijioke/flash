@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  defaultNetwork: "localhost",
+  defaultNetwork: "sepolia",
   namedAccounts: {
     deployer: {
       // By default, it will take the first Hardhat account as the deployer
@@ -51,7 +51,7 @@ const config: HardhatUserConfig = {
       },
     },
     mainnet: {
-      url: `https://soft-long-breeze.ethereum-sepolia.quiknode.pro/${QuicknodeApiKey}`,
+      url: `https://soft-long-breeze.quiknode.pro/${QuicknodeApiKey}`,
       accounts: [deployerPrivateKey],
     },
     sepolia: {
