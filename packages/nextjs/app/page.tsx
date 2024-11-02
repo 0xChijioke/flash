@@ -16,8 +16,7 @@ const Home = () => {
       <div className="lg:w-[60%] mt-14">
         <VaultTerminal />
       </div>
-      <div>
-      </div>
+      <div></div>
     </div>
   );
 };

@@ -59,7 +59,6 @@ const useBalances = () => {
     return balance ? formatUnits(balance, decimals) : "0";
   };
 
-
   const loading = {
     totalAssets: isLoadingTotalAssets,
     totalSupply: isLoadingTotalSupply,

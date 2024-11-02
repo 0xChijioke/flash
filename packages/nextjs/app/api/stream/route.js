@@ -1,7 +1,6 @@
 function main(stream) {
   const data = stream.data ? stream.data : stream;
 
-
   if (!Array.isArray(data)) {
     console.error("Stream data is not an array.");
     return null;
@@ -13,7 +12,6 @@ function main(stream) {
     // "0x0c396cd989a39f4459b5fa1aed6a9a8dcdbc45908acfd67e028cd568da98982c", // Burn
   ]);
 
-
   const logs = data.flatMap(innerArray => {
     if (Array.isArray(innerArray)) {
       const receipt = innerArray[0];
@@ -24,13 +22,9 @@ function main(stream) {
     return [];
   });
 
-  const filteredLogs = logs.filter(log => 
-    log.topics && log.topics.length > 0 && topicHashes.has(log.topics[0])
-  );
+  const filteredLogs = logs.filter(log => log.topics && log.topics.length > 0 && topicHashes.has(log.topics[0]));
 
-
-
-   if (filteredLogs.length === 0) {
+  if (filteredLogs.length === 0) {
     console.log("No relevant logs found.");
     return;
   }

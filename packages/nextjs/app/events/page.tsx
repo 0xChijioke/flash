@@ -1,12 +1,13 @@
-"use client"
-import EventComponent from '~~/components/vault/EventComponent';
+"use client";
+
+import EventComponent from "~~/components/vault/EventComponent";
 
 const EventPage = () => {
   return (
     <div>
-        <EventComponent />
+      <EventComponent />
     </div>
-  )
-}
+  );
+};
 
 export default EventPage;

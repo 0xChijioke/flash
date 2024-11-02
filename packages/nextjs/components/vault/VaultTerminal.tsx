@@ -27,7 +27,6 @@ const VaultTerminal = () => {
     walletClient,
   });
 
-
   const { writeContractAsync: writeFlashVault } = useScaffoldWriteContract("FlashVault");
 
   useEffect(() => {
@@ -69,24 +68,21 @@ const VaultTerminal = () => {
         args: [address as string, flashVault?.address as string],
       });
 
-      
-  
       if (currentAllowance < amount) {
         const approvalResult = await handleApprove(amount);
         if (!approvalResult) {
           setStatus("Approval failed. Please try again.");
           return;
         }
-  
       }
-  
+
       const depositTx = await writeFlashVault({
         functionName: "userDeposit",
         args: [amount],
       });
-  
+
       console.log("Deposit transaction sent:", depositTx);
-  
+
       setStatus(`${activeTab} successful! 🎉`);
     } catch (error) {
       console.error("Deposit failed:", error);
@@ -105,32 +101,32 @@ const VaultTerminal = () => {
         account: address as string,
       });
 
-    let attempts = 5; 
-    const delay = 3000; 
-    let currentAllowance;
+      let attempts = 5;
+      const delay = 3000;
+      let currentAllowance;
 
-    for (let i = 0; i < attempts; i++) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      for (let i = 0; i < attempts; i++) {
+        await new Promise(resolve => setTimeout(resolve, delay));
 
-      currentAllowance = await readContract(walletClient!, {
-        address: USDC_ADDRESS,
-        abi: erc20Abi,
-        functionName: "allowance",
-        args: [address as string, flashVault?.address as string],
-      });
+        currentAllowance = await readContract(walletClient!, {
+          address: USDC_ADDRESS,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [address as string, flashVault?.address as string],
+        });
 
-      if (currentAllowance >= amount) {
-        return true;
+        if (currentAllowance >= amount) {
+          return true;
+        }
       }
-    }
 
-    console.warn("Approval not confirmed within the timeout period.");
-    return false;
-  } catch (error) {
-    console.error("Error in handleApprove:", error);
-    return false;
-  }
-};
+      console.warn("Approval not confirmed within the timeout period.");
+      return false;
+    } catch (error) {
+      console.error("Error in handleApprove:", error);
+      return false;
+    }
+  };
 
   const handleWithdraw = async (amount: bigint) => {
     try {

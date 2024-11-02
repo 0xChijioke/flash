@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { useScaffoldEventHistory, useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
 import { Address } from "../scaffold-eth";
+import { useScaffoldEventHistory, useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
 
 const EventComponent = () => {
   const [events, setEvents] = useState<any>([]);
-  
-  
+
   useScaffoldWatchContractEvent({
     contractName: "FlashVault",
     eventName: "TradeExecuted",
@@ -21,7 +20,6 @@ const EventComponent = () => {
     },
   });
 
-
   const {
     data: historicArbitrageExecution,
     isLoading: isLoadingEvents,
@@ -31,18 +29,18 @@ const EventComponent = () => {
     eventName: "TradeExecuted",
     fromBlock: 31231n,
     watch: true,
-    filters: {  },
+    filters: {},
     blockData: true,
     transactionData: true,
     receiptData: true,
   });
-  
+
   useEffect(() => {
     if (historicArbitrageExecution) {
       const mappedEvents = historicArbitrageExecution.map((event, index) => ({
         id: event.logIndex || index + 1,
         timestamp: new Date(Number(event.blockData.timestamp) * 1000).toLocaleString(),
-        amount: (Number(event.args.net) / 1e6).toFixed(2), 
+        amount: (Number(event.args.net) / 1e6).toFixed(2),
         asset: event.args.tokenOut,
       }));
       setEvents(mappedEvents);
@@ -54,7 +52,7 @@ const EventComponent = () => {
       <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
         <h2 className="text-2xl font-bold text-center">Events</h2>
         <p className="text-gray-500 text-center">Latest trades executed.</p>
-        
+
         <div className="overflow-x-auto max-h-screen">
           <table className="w-full table-auto mt-6">
             <thead>
