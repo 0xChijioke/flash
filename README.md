@@ -268,4 +268,4 @@ FlashVault’s roadmap includes expanding trading strategies, enhancing risk man
 
 ---
 
-⚠️ **Disclaimer: This application is a prototype for demonstration and testing only. It is not production-ready.**
+⚠️ **Disclaimer: This application is a prototype for demonstration only. It is not production-ready.**
