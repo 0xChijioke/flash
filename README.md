@@ -1,4 +1,4 @@
-# Flash
+# FlashVault
 
 ## Overview
 
@@ -7,11 +7,10 @@ By using real-time monitoring and price execution triggers, FlashVault provides 
 
 
 
-
 ## Key Features
 
 ### User-Focused
-- **PTransparent & Accessible**: Open participation via USDC deposits with traceable vault performance via on-chain data.
+- **Transparent & Accessible**: Open participation via USDC deposits with traceable vault performance via on-chain data.
 - **Automated Yields**: Benefit from profitable arbitrage without active management.
 - **Seamless Withdrawals**: Withdraw funds anytime using vault shares.
 
@@ -64,6 +63,38 @@ FlashVault focuses on a single, strategic approach: **Buy Low, Sell High** betwe
 
 
 
+
+
+## Technical Architecture
+
+
+### Smart Contract Overview
+The FlashVault smart contract layer is designed to manage user interactions, facilitate automated arbitrage trading, and optimize capital efficiency. It adheres to the ERC4626 standard, enabling a tokenized vault structure that allows users to deposit and withdraw USDC while benefiting from automated yield generation through arbitrage opportunities.
+
+**Smart Contract Layer*
+- ERC4626 Tokenized Vault 
+  - **Deposit**: Allows users to deposit USDC into the vault, minting corresponding vault shares.
+  - **Withdraw**: Enables users to withdraw their assets based on the number of shares they hold.
+  - **Flash Loan Execution**: Manages flash loans from Aave to execute larger trades without collateral, ensuring efficient capital use in arbitrage opportunities
+  - **Execute Trade**: Handles the actual trading operations between DEXs, ensuring the execution of trades.
+  - **Profit Distribution**: Allocates net profits from arbitrage trades to vault shareholders, ensuring that returns are transparently shared among users.
+
+For reference, you can view the [deployed contract](https://sepolia.etherscan.io/address/0x207ABAcEe3Be9EFEf87c600Dcd2C0511b659B050).
+    
+#### Backend Overview
+
+**Monitoring Layer**
+- Arbitrage Detection Engine  
+  - **Log Decoder**: Decodes incoming event data.
+  - **Price Calculator**: Real-time asset price calculation.
+  - **Arbitrage Checker**: Validates if price differences are profitable.
+  - **Execution Trigger**: Initiates arbitrage in smart contract if conditions are met.
+
+
+
+
+
+
 ```mermaid
 flowchart TB
     subgraph UserActions["User Interface Layer"]
@@ -109,39 +140,12 @@ flowchart TB
 
 
 
-
-## Technical Architecture
-
-
-### Smart Contract Overview
-
-
-Key Components
-
-**Smart Contract Layer*
-- ERC4626 Tokenized Vault
-
-    
-#### Backend Architecture
-
-**Monitoring Layer**
-- Arbitrage Detection Engine  
-  - **Log Decoder**: Decodes incoming event data.
-  - **Price Calculator**: Real-time asset price calculation.
-  - **Arbitrage Checker**: Validates if price differences are profitable.
-  - **Execution Trigger**: Initiates arbitrage in smart contract if conditions are met.
-
-
-
-
-
-
-
 The FlashVault contract is built on the following standards, libraries and protocols:
 
 - **ERC4626**: Ensures compatibility and standardization for yield-bearing vaults.
 - **OpenZeppelin**: Trusted libraries provide secure token management and reentrancy protection.
 - **Aave**: Supports instant, collateral-free borrowing to enable quick execution of profitable trades.
+- **Uniswap**: Enables seamless interaction with the Uniswap decentralized exchange, facilitating efficient asset swaps and liquidity provision.
 
 ### Key Functions
 
@@ -154,6 +158,9 @@ The FlashVault contract is built on the following standards, libraries and proto
   ```solidity
   function userWithdraw(uint256 shares) external returns (uint256 assets);
   ```
+
+
+- **Execute Arbitrage**: Initiates arbitrage trade between specified DEX pools to capture profitable opportunities.
   ```solidity
   function executeArbitrage(
 		address _pool0,
@@ -161,10 +168,11 @@ The FlashVault contract is built on the following standards, libraries and proto
 		address _tokenOut,
 		uint256 _amount,
      	bool _isToken0USDC
-	) external onlyFlashFunction ;
+	) external onlyFlashFunction;
   ```
 
 
+- **Execute Trade**: Internal function that performs trade operations between specified pools.
   ```solidity
   function _executeTrade(
 		address pool0,
@@ -174,6 +182,40 @@ The FlashVault contract is built on the following standards, libraries and proto
      	bool isToken0USDC
 	) internal;
   ```
+
+ ## QuickNode Serverless Function
+   The QuickNode FlashVault function is designed to facilitate real-time interactions with the FlashVault contract, enabling efficient monitoring of on-chain events and execution of arbitrage opportunities. This serverless function leverages Ethers.js v6 for seamless integration with Ethereum smart contracts, ensuring fast and secure operations. Below are the key functions included in this module:
+
+### Key Functions
+
+- **handleLogs**: Processes filtered logs from blockchain events to identify relevant pools.
+  ```javascript
+  async function handleLogs(filteredLogs)
+  ```
+
+- **handleSwap**: Manages the logic for analyzing swap events and determining potential arbitrage opportunities across multiple DEXs.
+  ```javascript
+  async function handleSwap(poolDetails)
+  ```
+
+- **checkForArbitrage**: Evaluates prices between pools to identify arbitrage opportunities, considering liquidity and price thresholds.
+  ```javascript
+  function checkForArbitrage(pools)
+  ```
+
+- **triggerArbitrageExecution**: Initiates the execution of an arbitrage trade based on identified opportunities, interacting directly with the FlashVault contract to carry out the transaction.
+  ```javascript
+  async function triggerArbitrageExecution({ buyPool, sellPool, tradeAmount })
+  ```
+
+
+## Limitations
+
+- **Deployment Environment**: FlashVault’s detection engine processes events and pools on the Ethereum Mainnet. However, the contract is currently deployed on the [Sepolia testnet](https://sepolia.etherscan.io/address/0x207ABAcEe3Be9EFEf87c600Dcd2C0511b659B050) for demonstration purposes. Arbitrage opportunities identified on the Mainnet are simulated on Sepolia using hardcoded DEX pools instead of live Mainnet pools.
+
+- **Unaccounted Costs**: The current implementation does not yet factor in potential slippage, transaction fees, or gas costs during trade execution. This could impact the profitability of arbitrage trades and should be considered in future updates.
+
+- **Event Monitoring Scope**: The detection engine currently only listens for swap events on the DEXs. This limited scope may result in missed opportunities if price changes occur outside of swap events or if liquidity shifts happen without corresponding trades.
 
 
 ## Future Roadmap
@@ -187,19 +229,11 @@ FlashVault’s roadmap includes expanding trading strategies, enhancing risk man
 2. **Technical Enhancements**  
    - **Advanced Risk Management**: Adaptive thresholds, slippage controls, and dynamic position sizing.
    - **Performance Optimization**: MEV protection, parallel execution, and gas cost reductions.
-   - **Infrastructure Improvements**: Integration of decentralized oracles, enhanced monitoring, and analytics.
+   - **Infrastructure Improvements**: Integration of advanced analytics, enhanced monitoring, etc.
 
 3. **Protocol Expansion**  
    - **Additional DEX Integrations**: Supports more DEX protocols for increased reach and flexibility.
    - **Yield Optimization**: Idle fund utilization through yield farming and compounding strategies.
-
-
-
-
-
-
-
-
 
 
 
