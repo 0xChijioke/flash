@@ -1,4 +1,4 @@
-# FlashVault
+# ⚡ FlashVault
 
 ## Overview
 
@@ -149,18 +149,18 @@ The FlashVault contract is built on the following standards, libraries and proto
 
 ### Key Functions
 
-- **Deposit**: Users can deposit USDC and receive shares in return.
+- **[Deposit](https://github.com/0xChijioke/flash/blob/main/packages/hardhat/contracts/FlashVault.sol#L105)**: Users can deposit USDC and receive shares in return.
   ```solidity
   function userDeposit(uint256 assets) external returns (uint256 shares);
   ```
 
-- **Withdraw**: Users can withdraw their assets based on their shares.
+- **[Withdraw](https://github.com/0xChijioke/flash/blob/main/packages/hardhat/contracts/FlashVault.sol#L120)**: Users can withdraw their assets based on their shares.
   ```solidity
   function userWithdraw(uint256 shares) external returns (uint256 assets);
   ```
 
 
-- **Execute Arbitrage**: Initiates arbitrage trade between specified DEX pools to capture profitable opportunities.
+- **[Execute Arbitrage](https://github.com/0xChijioke/flash/blob/main/packages/hardhat/contracts/FlashVault.sol#L171)**: Initiates arbitrage trade between specified DEX pools to capture profitable opportunities.
   ```solidity
   function executeArbitrage(
 		address _pool0,
@@ -172,7 +172,7 @@ The FlashVault contract is built on the following standards, libraries and proto
   ```
 
 
-- **Execute Trade**: Internal function that performs trade operations between specified pools.
+- **[Execute Trade](https://github.com/0xChijioke/flash/blob/main/packages/hardhat/contracts/FlashVault.sol#L203)**: Internal function that performs trade operations between specified pools.
   ```solidity
   function _executeTrade(
 		address pool0,
