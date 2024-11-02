@@ -2,11 +2,11 @@
 
 import { useContext, useEffect, useState } from "react";
 import InputForm from "./InputForm";
-import { erc20Abi, formatUnits } from "viem";
+import { erc20Abi, formatUnits, parseUnits } from "viem";
 import { readContract, writeContract } from "viem/actions";
-import { hardhat } from "viem/chains";
-import { useAccount } from "wagmi";
-import { USDC_ADDRESS } from "~~/app/config";
+import { hardhat, sepolia } from "viem/chains";
+import { useAccount, useBalance } from "wagmi";
+import { USDC_ADDRESS, USDC_DECIMALS } from "~~/app/config";
 import { ClientContext } from "~~/contexts/ClientContext";
 import { useScaffoldContract, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { previewAssetsToShares } from "~~/utils/contract";
@@ -27,14 +27,6 @@ const VaultTerminal = () => {
     walletClient,
   });
 
-  // Fetch max withdraw for user
-  const { data: maxWithdraw } = useScaffoldReadContract({
-    contractName: "FlashVault",
-    functionName: "maxWithdraw",
-    args: [address],
-  });
-
-  console.log(maxWithdraw);
 
   const { writeContractAsync: writeFlashVault } = useScaffoldWriteContract("FlashVault");
 
@@ -77,21 +69,24 @@ const VaultTerminal = () => {
         args: [address as string, flashVault?.address as string],
       });
 
+      
+  
       if (currentAllowance < amount) {
         const approvalResult = await handleApprove(amount);
         if (!approvalResult) {
           setStatus("Approval failed. Please try again.");
           return;
         }
+  
       }
-
+  
       const depositTx = await writeFlashVault({
         functionName: "userDeposit",
         args: [amount],
       });
-
+  
       console.log("Deposit transaction sent:", depositTx);
-
+  
       setStatus(`${activeTab} successful! 🎉`);
     } catch (error) {
       console.error("Deposit failed:", error);
@@ -106,19 +101,36 @@ const VaultTerminal = () => {
         abi: erc20Abi,
         functionName: "approve",
         args: [flashVault?.address as string, amount],
-        chain: hardhat,
+        chain: sepolia,
         account: address as string,
       });
 
-      console.log(approvalTx);
+    let attempts = 5; 
+    const delay = 3000; 
+    let currentAllowance;
 
-      console.log("Approval successful:", approvalTx);
-      return true;
-    } catch (error) {
-      console.error("Error in handleApprove:", error);
-      return false;
+    for (let i = 0; i < attempts; i++) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+      currentAllowance = await readContract(walletClient!, {
+        address: USDC_ADDRESS,
+        abi: erc20Abi,
+        functionName: "allowance",
+        args: [address as string, flashVault?.address as string],
+      });
+
+      if (currentAllowance >= amount) {
+        return true;
+      }
     }
-  };
+
+    console.warn("Approval not confirmed within the timeout period.");
+    return false;
+  } catch (error) {
+    console.error("Error in handleApprove:", error);
+    return false;
+  }
+};
 
   const handleWithdraw = async (amount: bigint) => {
     try {
@@ -200,7 +212,7 @@ const VaultTerminal = () => {
 
   return (
     <div className="w-full flex flex-col p-10">
-      <div role="tablist" className="tabs tabs-bordered">
+      <div role="tablist" className="tabs border-slate-500 tabs-bordered">
         <button
           role="tab"
           className={`tab text-lg uppercase ${activeTab === "Deposit" ? "tab-active" : ""}`}
